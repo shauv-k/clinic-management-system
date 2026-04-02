@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from app.schemas.patient import PatientCreate
 from app.services import patient_service
 
-router = APIRouter()
+router = APIRouter(prefix="/patients", tags=["Patients"])
 
 @router.post("/")
 def create_patient(patient: PatientCreate):

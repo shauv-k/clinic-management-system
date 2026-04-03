@@ -15,7 +15,7 @@ UPDATE DEPARTMENT SET head_doctor_id = 1 WHERE department_id = 1;
 UPDATE DEPARTMENT SET head_doctor_id = 2 WHERE department_id = 2;
 
 -- Patients
-INSERT INTO PATIENT VALUES (1, 'Rahul', 'M', DATE '2000-01-01', '7777777777', 'Pune');
+INSERT INTO PATIENT VALUES (1, 'Rahul', 'Male', DATE '2000-01-01', '7777777777', 'Pune');
 
 -- Medication
 INSERT INTO MEDICATION VALUES (1, 'Paracetamol');

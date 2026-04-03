@@ -1,3 +1,4 @@
-pycache/
+# python
+__pycache__/
 *.pyc
 *.pyo

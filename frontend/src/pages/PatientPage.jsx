@@ -1,10 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 
-function PatientPage({ setPatient, setSpecialization, go }) {
+function PatientPage({ go }) {
   const [phone, setPhone] = useState("");
-  const [patientData, setPatientData] = useState(null);
-  const [spec, setSpec] = useState("");
+  const [patient, setPatient] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -14,7 +13,7 @@ function PatientPage({ setPatient, setSpecialization, go }) {
     address: ""
   });
 
-  // 🔍 SEARCH PATIENT
+  // 🔍 LOOKUP
   const search = async () => {
     try {
       const res = await axios.get(
@@ -22,147 +21,83 @@ function PatientPage({ setPatient, setSpecialization, go }) {
       );
 
       if (res.data.error) {
-        alert(res.data.error);
+        setPatient(null);
+        alert("No patient found");
         return;
       }
 
-      setPatientData(res.data);
-
-    } catch (err) {
-      console.error(err);
-      alert("Patient not found");
+      setPatient(res.data);
+    } catch {
+      alert("No patient found");
     }
   };
 
-  // ➕ CREATE PATIENT
+  // ➕ REGISTER
   const create = async () => {
-    try {
-      const formatted = {
-        ...form,
-        dob: new Date(form.dob).toISOString().split("T")[0]
-      };
+    const formatted = {
+      ...form,
+      dob: new Date(form.dob).toISOString().split("T")[0]
+    };
 
-      await axios.post("http://localhost:8000/patients/", formatted);
-
-      // auto fetch after create
-      const res = await axios.get(
-        `http://localhost:8000/patients/by-phone/${form.phone}`
-      );
-
-      setPatientData(res.data);
-
-    } catch (err) {
-      console.error(err);
-      alert("Error creating patient");
-    }
-  };
-
-  // ➡️ NEXT STEP
-  const proceed = () => {
-    if (!spec) {
-      alert("Enter specialization");
-      return;
-    }
-
-    setPatient(patientData);
-    setSpecialization(spec);
-
-    go("doctor");
+    await axios.post("http://localhost:8000/patients/", formatted);
+    alert("Patient created");
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Patient</h2>
+      <button onClick={() => go("dashboard")}>⬅ Back</button>
 
-      {/* 🔍 SEARCH */}
+      <h2>Patient Management</h2>
+
+      {/* 🔍 LOOKUP */}
+      <h3>Search Patient</h3>
       <input
-        placeholder="Enter Phone Number"
-        value={phone}
+        placeholder="Phone Number"
         onChange={(e) => setPhone(e.target.value)}
       />
       <button onClick={search}>Search</button>
 
+      {/* RESULT */}
+      {patient ? (
+        <div style={{ border: "1px solid white", padding: "10px", marginTop: "10px" }}>
+          <p><b>ID:</b> {patient.patient_id}</p>
+          <p><b>Name:</b> {patient.name}</p>
+          <p><b>Gender:</b> {patient.gender}</p>
+          <p><b>Phone:</b> {patient.phone}</p>
+          <p><b>Address:</b> {patient.address}</p>
+        </div>
+      ) : null}
+
       <hr />
 
-      {/* ➕ CREATE */}
-      <h3>Create Patient</h3>
+      {/* ➕ REGISTER */}
+      <h3>Register Patient</h3>
 
-      <input
-        placeholder="Name"
-        onChange={(e) =>
-          setForm({ ...form, name: e.target.value })
-        }
+      <input placeholder="Name"
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
       />
 
       <select
-        onChange={(e) =>
-          setForm({ ...form, gender: e.target.value })
-        }
+        onChange={(e) => setForm({ ...form, gender: e.target.value })}
       >
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
+        <option>Select Gender</option>
+        <option>Male</option>
+        <option>Female</option>
       </select>
 
-      <input
-        type="date"
-        onChange={(e) =>
-          setForm({ ...form, dob: e.target.value })
-        }
+      <input type="date"
+        onChange={(e) => setForm({ ...form, dob: e.target.value })}
       />
 
-      <input
-        placeholder="Phone"
-        onChange={(e) =>
-          setForm({ ...form, phone: e.target.value })
-        }
+      <input placeholder="Phone"
+        onChange={(e) => setForm({ ...form, phone: e.target.value })}
       />
 
-      <input
-        placeholder="Address"
-        onChange={(e) =>
-          setForm({ ...form, address: e.target.value })
-        }
+      <input placeholder="Address"
+        onChange={(e) => setForm({ ...form, address: e.target.value })}
       />
 
-      <button onClick={create}>Create</button>
-
-      {/* ✅ PATIENT DETAILS CARD */}
-      {patientData && (
-        <div
-          style={{
-            marginTop: "20px",
-            border: "1px solid #ccc",
-            padding: "15px",
-            borderRadius: "8px",
-            width: "320px"
-          }}
-        >
-          <h3>Patient Details</h3>
-
-          <p><b>ID:</b> {patientData.patient_id}</p>
-          <p><b>Name:</b> {patientData.name}</p>
-          <p><b>Gender:</b> {patientData.gender}</p>
-          <p><b>Phone:</b> {patientData.phone}</p>
-          <p><b>Address:</b> {patientData.address}</p>
-
-          <hr />
-
-          <h4>Enter Specialization</h4>
-
-          <input
-            placeholder="Cardiology / Neurology"
-            value={spec}
-            onChange={(e) => setSpec(e.target.value)}
-          />
-
-          <br /><br />
-
-          <button onClick={proceed}>
-            Find Doctors
-          </button>
-        </div>
-      )}
+      <button onClick={create}>Register</button>
     </div>
   );
 }

@@ -1,42 +1,20 @@
 import { useState } from "react";
 
+import Dashboard from "./pages/Dashboard";
 import PatientPage from "./pages/PatientPage";
-import DoctorPage from "./pages/DoctorPage";
-import BookAppointment from "./pages/BookAppointment";
+import AppointmentPage from "./pages/AppointmentPage";
 
 function App() {
-  const [step, setStep] = useState("patient");
+  const [step, setStep] = useState("dashboard");
 
-  const [patient, setPatient] = useState(null);
-  const [specialization, setSpecialization] = useState("");
-  const [doctor, setDoctor] = useState(null);
+  if (step === "dashboard")
+    return <Dashboard go={setStep} />;
 
   if (step === "patient")
-    return (
-      <PatientPage
-        setPatient={setPatient}
-        setSpecialization={setSpecialization}
-        go={setStep}
-      />
-    );
+    return <PatientPage go={setStep} />;
 
-  if (step === "doctor")
-    return (
-      <DoctorPage
-        specialization={specialization}
-        setDoctor={setDoctor}
-        go={setStep}
-      />
-    );
-
-  if (step === "book")
-    return (
-      <BookAppointment
-        patient={patient}
-        doctor={doctor}
-        go={setStep}
-      />
-    );
+  if (step === "appointment")
+    return <AppointmentPage go={setStep} />;
 }
 
 export default App;

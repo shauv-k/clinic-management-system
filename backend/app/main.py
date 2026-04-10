@@ -4,7 +4,6 @@ from app.routes import patient, appointment, department, doctor, medical_record,
 
 app = FastAPI()
 
-# ✅ FIXED CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import "./PatientPage.css";
 
 function PatientPage({ go }) {
-  const [phone, setPhone] = useState("");
+  const [searchPhone, setSearchPhone] = useState("");
   const [patient, setPatient] = useState(null);
 
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     gender: "",
     dob: "",
@@ -13,91 +14,134 @@ function PatientPage({ go }) {
     address: ""
   });
 
-  // 🔍 LOOKUP
-  const search = async () => {
+  // 🔍 LOOKUP: GET /patients/by-phone/{phone}
+  const handleSearch = async () => {
+    if (!searchPhone) return alert("Please enter a phone number");
     try {
       const res = await axios.get(
-        `http://localhost:8000/patients/by-phone/${phone}`
+        `http://localhost:8000/patients/by-phone/${searchPhone}`
       );
 
-      if (res.data.error) {
+      if (!res.data || res.data.error) {
         setPatient(null);
         alert("No patient found");
         return;
       }
-
       setPatient(res.data);
-    } catch {
+    } catch (err) {
+      setPatient(null);
       alert("No patient found");
     }
   };
 
-  // ➕ REGISTER
-  const create = async () => {
-    const formatted = {
-      ...form,
-      dob: new Date(form.dob).toISOString().split("T")[0]
-    };
+  // ➕ REGISTER: POST /patients/
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Sending exact payload as per your schema
+      await axios.post("http://localhost:8000/patients/", formData);
+      alert("Patient created successfully!");
+      setFormData({ name: "", gender: "", dob: "", phone: "", address: "" });
+    } catch (err) {
+      alert("Error creating patient");
+    }
+  };
 
-    await axios.post("http://localhost:8000/patients/", formatted);
-    alert("Patient created");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button onClick={() => go("dashboard")}>⬅ Back</button>
-
-      <h2>Patient Management</h2>
-
-      {/* 🔍 LOOKUP */}
-      <h3>Search Patient</h3>
-      <input
-        placeholder="Phone Number"
-        onChange={(e) => setPhone(e.target.value)}
-      />
-      <button onClick={search}>Search</button>
-
-      {/* RESULT */}
-      {patient ? (
-        <div style={{ border: "1px solid white", padding: "10px", marginTop: "10px" }}>
-          <p><b>ID:</b> {patient.patient_id}</p>
-          <p><b>Name:</b> {patient.name}</p>
-          <p><b>Gender:</b> {patient.gender}</p>
-          <p><b>Phone:</b> {patient.phone}</p>
-          <p><b>Address:</b> {patient.address}</p>
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <div className="header-top">
+          <button className="back-btn" onClick={() => go("dashboard")}>
+            <i className="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <h1>Patient Management</h1>
         </div>
-      ) : null}
+        <p>Search records or register a new patient</p>
+      </header>
 
-      <hr />
+      <main className="management-grid">
+        {/* 🔍 Patient Lookup Section */}
+        <section className="management-section">
+          <div className="card">
+            <h2><i className="fa-solid fa-magnifying-glass"></i> Patient Lookup</h2>
 
-      {/* ➕ REGISTER */}
-      <h3>Register Patient</h3>
+            <div className="search-box">
+              <input
+                type="tel"
+                placeholder="Enter Phone Number..."
+                value={searchPhone}
+                onChange={(e) => setSearchPhone(e.target.value)}
+              />
+              <button className="card-button" onClick={handleSearch}>Search</button>
+            </div>
 
-      <input placeholder="Name"
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
+            {patient ? (
+              <div className="patient-result-card">
+                <div className="result-header">
+                  <div className="avatar-circle"><i className="fa-solid fa-user"></i></div>
+                  <div className="result-title">
+                    <span className="patient-id">ID: #{patient.patient_id}</span>
+                    <h3>Patient Details</h3>
+                  </div>
+                </div>
 
-      <select
-        onChange={(e) => setForm({ ...form, gender: e.target.value })}
-      >
-        <option>Select Gender</option>
-        <option>Male</option>
-        <option>Female</option>
-      </select>
+                <div className="detail-row"><span><strong>Name:</strong></span><span>{patient.name}</span></div>
+                <div className="detail-row"><span><strong>Phone:</strong></span><span>{patient.phone}</span></div>
+                <div className="detail-row"><span><strong>Gender:</strong></span><span>{patient.gender}</span></div>
+                <div className="detail-row"><span><strong>DOB:</strong></span><span>{patient.dob}</span></div>
+                <div className="detail-row"><span><strong>Address:</strong></span><span>{patient.address}</span></div>
+              </div>
+            ) : (
+              <p className="placeholder-text">Enter phone number to view results.</p>
+            )}
+          </div>
+        </section>
 
-      <input type="date"
-        onChange={(e) => setForm({ ...form, dob: e.target.value })}
-      />
+        {/* ➕ Registration Section */}
+        <section className="management-section">
+          <div className="card">
+            <h2><i className="fa-solid fa-user-plus"></i> Patient Registration</h2>
+            <form className="registration-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Full Name</label>
+                <input type="text" id="name" required value={formData.name} onChange={handleChange} />
+              </div>
 
-      <input placeholder="Phone"
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-      />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Gender</label>
+                  <select id="gender" required value={formData.gender} onChange={handleChange}>
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Date of Birth</label>
+                  <input type="date" id="dob" required value={formData.dob} onChange={handleChange} />
+                </div>
+              </div>
 
-      <input placeholder="Address"
-        onChange={(e) => setForm({ ...form, address: e.target.value })}
-      />
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="phone" required value={formData.phone} onChange={handleChange} />
+              </div>
 
-      <button onClick={create}>Register</button>
+              <div className="form-group">
+                <label>Address</label>
+                <input type="text" id="address" required value={formData.address} onChange={handleChange} />
+              </div>
+
+              <button type="submit" className="card-button submit-btn">Register Patient</button>
+            </form>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import PatientPage from "./pages/PatientPage";
 import AppointmentPage from "./pages/AppointmentPage";
 import Prescription from "./pages/Prescription";
 import Billing from "./pages/Billing";
+import MedicalRecord from "./pages/MedicalRecord";
 
 function App() {
   const [step, setStep] = useState("dashboard");
@@ -23,6 +24,9 @@ function App() {
 
   if (step === "billing") 
     return <Billing go={setStep} />;
+
+  if (step === "medical")
+    return <MedicalRecord go={setStep} />;
 }
 
 export default App;

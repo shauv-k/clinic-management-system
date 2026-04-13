@@ -1,11 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import "./Billing.css";
 
 function Billing({ go }) {
-  const [mode, setMode] = useState("");
-
+  const [mode, setMode] = useState(""); // "" (selection), "create", or "lookup"
   const [appointmentId, setAppointmentId] = useState("");
   const [bill, setBill] = useState(null);
+  const [updateMode, setUpdateMode] = useState("");
 
   const [form, setForm] = useState({
     appointment_id: "",
@@ -13,31 +14,20 @@ function Billing({ go }) {
     payment_mode: ""
   });
 
-  const [updateMode, setUpdateMode] = useState("");
-
   // ================= CREATE BILL =================
   const createBill = async () => {
     try {
       const payload = {
         appointment_id: Number(form.appointment_id),
         amount: Number(form.amount),
-        payment_mode: form.payment_mode || null // ✅ NULL allowed
+        payment_mode: form.payment_mode || null
       };
 
-      console.log("CREATE BILL:", payload);
-
       await axios.post("http://localhost:8000/billing", payload);
-
-      alert("✅ Bill created");
-
-      setForm({
-        appointment_id: "",
-        amount: "",
-        payment_mode: ""
-      });
-
+      alert("✅ Bill created successfully");
+      setForm({ appointment_id: "", amount: "", payment_mode: "" });
+      setMode(""); // Return to selection
     } catch (err) {
-      console.error(err.response?.data || err.message);
       alert("❌ Error creating bill");
     }
   };
@@ -45,14 +35,9 @@ function Billing({ go }) {
   // ================= GET BILL =================
   const getBill = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:8000/billing/${appointmentId}`
-      );
-
+      const res = await axios.get(`http://localhost:8000/billing/${appointmentId}`);
       setBill(res.data);
-
     } catch (err) {
-      console.error(err.response?.data || err.message);
       alert("❌ Bill not found");
       setBill(null);
     }
@@ -64,138 +49,147 @@ function Billing({ go }) {
       await axios.patch(
         `http://localhost:8000/billing/${appointmentId}?mode=${updateMode || ""}`
       );
-
-      alert("✅ Payment updated");
-
-      // refresh bill
-      getBill();
-
+      alert("✅ Payment mode updated");
+      getBill(); // Refresh current bill view
+      setUpdateMode("");
     } catch (err) {
-      console.error(err.response?.data || err.message);
       alert("❌ Update failed");
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button onClick={() => go("dashboard")}>⬅ Back</button>
-
-      <h2>Billing</h2>
-
-      {/* ================= OPTIONS ================= */}
-      {mode === "" && (
-        <div style={{ marginTop: "20px" }}>
-          <button onClick={() => setMode("create")}>
-            Create Bill
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <div className="header-top">
+          <button className="back-btn" onClick={() => (mode === "" ? go("dashboard") : setMode(""))}>
+            <i className="fa-solid fa-arrow-left"></i> {mode === "" ? "Back to Dashboard" : "Back"}
           </button>
-
-          <button
-            style={{ marginLeft: "10px" }}
-            onClick={() => setMode("lookup")}
-          >
-            Get Bill
-          </button>
+          <h1>Billing Management</h1>
         </div>
-      )}
+        <p>Generate invoices and manage patient payments</p>
+      </header>
 
-      {/* ================= CREATE ================= */}
-      {mode === "create" && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>➕ Create Bill</h3>
-
-          <input
-            placeholder="Appointment ID"
-            value={form.appointment_id}
-            onChange={(e) =>
-              setForm({ ...form, appointment_id: e.target.value })
-            }
-          />
-
-          <br />
-
-          <input
-            placeholder="Amount"
-            value={form.amount}
-            onChange={(e) =>
-              setForm({ ...form, amount: e.target.value })
-            }
-          />
-
-          <br />
-
-          <input
-            placeholder="Payment Mode (optional)"
-            value={form.payment_mode}
-            onChange={(e) =>
-              setForm({ ...form, payment_mode: e.target.value })
-            }
-          />
-
-          <br /><br />
-
-          <button onClick={createBill}>Submit</button>
-
-          <button
-            style={{ marginLeft: "10px" }}
-            onClick={() => setMode("")}
-          >
-            ⬅ Back
-          </button>
-        </div>
-      )}
-
-      {/* ================= LOOKUP ================= */}
-      {mode === "lookup" && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>🔍 Get Bill</h3>
-
-          <input
-            placeholder="Enter Appointment ID"
-            value={appointmentId}
-            onChange={(e) => setAppointmentId(e.target.value)}
-          />
-
-          <button onClick={getBill}>Search</button>
-
-          {/* RESULT */}
-          {bill && (
-            <div style={{
-              border: "1px solid #ccc",
-              padding: "15px",
-              marginTop: "10px",
-              borderRadius: "8px"
-            }}>
-              <p><b>Bill ID:</b> {bill.bill_id}</p>
-              <p><b>Appointment ID:</b> {bill.appointment_id}</p>
-              <p><b>Amount:</b> {bill.amount}</p>
-              <p><b>Payment Mode:</b> {bill.payment_mode || "UNPAID"}</p>
-              <p><b>Status:</b> {bill.payment_status}</p>
-
-              <hr />
-
-              <h4>Update Payment Mode</h4>
-
-              <input
-                placeholder="CASH / CARD / UPI"
-                value={updateMode}
-                onChange={(e) => setUpdateMode(e.target.value)}
-              />
-
-              <br /><br />
-
-              <button onClick={updatePayment}>
-                Update Payment
-              </button>
+      <main className="management-grid">
+        {/* 🔥 MODE SELECTION */}
+        {mode === "" && (
+          <div className="mode-selection-container">
+            <div className="card selection-card" onClick={() => setMode("create")}>
+              <div className="card-icon"><i className="fa-solid fa-file-invoice-dollar"></i></div>
+              <h2>Create New Bill</h2>
+              <p>Generate a new invoice for a patient appointment.</p>
+              <button className="card-button">Open Creator</button>
             </div>
-          )}
 
-          <br />
+            <div className="card selection-card" onClick={() => setMode("lookup")}>
+              <div className="card-icon"><i className="fa-solid fa-receipt"></i></div>
+              <h2>Retrieve Bill</h2>
+              <p>Search and update existing billing records by Appointment ID.</p>
+              <button className="card-button outline">Find Invoice</button>
+            </div>
+          </div>
+        )}
 
-          <button onClick={() => setMode("")}>
-            ⬅ Back
-          </button>
-        </div>
-      )}
+        {/* ================= CREATE SECTION ================= */}
+        {mode === "create" && (
+          <section className="management-section centered-section">
+            <div className="card">
+              <h2><i className="fa-solid fa-plus-circle"></i> Create Invoice</h2>
+              <div className="registration-form">
+                <div className="form-group">
+                  <label>Appointment ID</label>
+                  <input
+                    type="number"
+                    placeholder="Enter Appointment ID"
+                    value={form.appointment_id}
+                    onChange={(e) => setForm({ ...form, appointment_id: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Total Amount ($)</label>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    value={form.amount}
+                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Initial Payment Mode (Optional)</label>
+                  <select 
+                    value={form.payment_mode} 
+                    onChange={(e) => setForm({ ...form, payment_mode: e.target.value })}
+                  >
+                    <option value="">Select Mode</option>
+                    <option value="CASH">CASH</option>
+                    <option value="CARD">CARD</option>
+                    <option value="UPI">UPI</option>
+                  </select>
+                </div>
+                <button className="card-button submit-btn" onClick={createBill}>
+                  Generate Bill
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ================= LOOKUP SECTION ================= */}
+        {mode === "lookup" && (
+          <section className="management-section centered-section">
+            <div className="card">
+              <h2><i className="fa-solid fa-magnifying-glass-dollar"></i> Invoice Lookup</h2>
+              <div className="search-box">
+                <input
+                  placeholder="Enter Appointment ID"
+                  value={appointmentId}
+                  onChange={(e) => setAppointmentId(e.target.value)}
+                />
+                <button className="card-button" onClick={getBill}>Search</button>
+              </div>
+
+              {bill && (
+                <div className="bill-result-card">
+                  <div className="result-header">
+                    <span className="bill-id-tag">Bill #{bill.bill_id}</span>
+                    <span className={`status-badge ${bill.payment_status?.toLowerCase()}`}>
+                      {bill.payment_status}
+                    </span>
+                  </div>
+
+                  <div className="detail-row">
+                    <span><strong>Appointment ID:</strong></span>
+                    <span>{bill.appointment_id}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span><strong>Total Amount:</strong></span>
+                    <span className="amount-text">Rs.{bill.amount}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span><strong>Current Mode:</strong></span>
+                    <span>{bill.payment_mode || "Not Set"}</span>
+                  </div>
+
+                  <div className="update-payment-zone">
+                    <h4>Update Payment Method</h4>
+                    <div className="search-box">
+                      <select 
+                        value={updateMode} 
+                        onChange={(e) => setUpdateMode(e.target.value)}
+                      >
+                        <option value="">Choose Method</option>
+                        <option value="CASH">CASH</option>
+                        <option value="CARD">CARD</option>
+                        <option value="UPI">UPI</option>
+                      </select>
+                      <button className="card-button outline" onClick={updatePayment}>Update</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }

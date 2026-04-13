@@ -13,6 +13,7 @@ class PrescriptionOut(BaseModel):
     prescription_id: int
     appointment_id: int
     medication_id: int
+    medication_name: str  
     dosage: str
     frequency: str
     duration: str

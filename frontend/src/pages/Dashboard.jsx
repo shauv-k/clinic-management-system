@@ -17,6 +17,20 @@ function Dashboard({ go }) {
         >
           Appointment
         </button>
+
+        <button
+          style={{ margin: "10px", padding: "15px" }}
+          onClick={() => go("prescription")}
+        >
+          Prescription
+        </button>
+
+        <button
+          style={{ margin: "10px", padding: "15px" }}
+          onClick={() => go("billing")}
+        >
+          Billing
+        </button>
       </div>
     </div>
   );

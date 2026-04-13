@@ -47,20 +47,29 @@ function AppointmentPage({ go }) {
 
   // 📅 CREATE APPOINTMENT
   const book = async () => {
-    try {
-      await axios.post("http://localhost:8000/appointments/", {
-        patient_id: patient.patient_id,
-        doctor_id: doctor.doctor_id,
-        appointment_datetime: dateTime
-        // ❌ NO STATUS (backend handles it)
-      });
-
-      alert("✅ Appointment booked!");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("❌ Booking failed");
+  try {
+    if (!dateTime || !patient || !doctor) {
+      alert("Fill all fields");
+      return;
     }
-  };
+
+    const payload = {
+      patient_id: Number(patient.patient_id),
+      doctor_id: Number(doctor.doctor_id),
+      appointment_datetime: dateTime + ":00", // ✅ FIX HERE
+      status: "SCHEDULED" // ✅ REQUIRED (your backend needs it)
+    };
+
+    console.log("FINAL:", payload);
+
+    await axios.post("http://localhost:8000/appointments/", payload);
+
+    alert("✅ Appointment booked!");
+  } catch (err) {
+    console.error("ERROR:", err.response?.data);
+    alert(err.response?.data?.detail || "❌ Booking failed");
+  }
+};
 
   // 🔍 LOOKUP APPOINTMENTS BY PATIENT ID
   const lookupAppointments = async () => {

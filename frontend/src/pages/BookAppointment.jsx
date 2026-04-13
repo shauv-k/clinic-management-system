@@ -3,6 +3,7 @@ import axios from "axios";
 
 function BookAppointment({ patient, doctor, go }) {
   const [dateTime, setDateTime] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const book = async () => {
     try {
@@ -11,24 +12,51 @@ function BookAppointment({ patient, doctor, go }) {
         return;
       }
 
+      if (!patient || !doctor) {
+        alert("Missing patient or doctor info");
+        return;
+      }
+
+      setLoading(true);
+
+      // ✅ FIX: Ensure proper datetime format (adds seconds)
+      const formattedDateTime = dateTime.length === 16
+        ? dateTime + ":00"
+        : dateTime;
+
       const payload = {
-        patient_id: patient.patient_id,   // ✅ ID based
-        doctor_id: doctor.doctor_id,      // ✅ ID based
-        appointment_datetime: dateTime,
-        status: "SCHEDULED"               // ✅ MUST BE UPPERCASE
+        patient_id: Number(patient.patient_id),   // ✅ ensure int
+        doctor_id: Number(doctor.doctor_id),      // ✅ ensure int
+        appointment_datetime: formattedDateTime,  // ✅ FIXED
+        status: "SCHEDULED"
       };
 
-      console.log("Sending:", payload);
+      console.log("📤 Sending:", payload);
 
-      await axios.post("http://localhost:8000/appointments/", payload);
+      await axios.post(
+        "http://localhost:8000/appointments/",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
 
       alert("✅ Appointment booked successfully!");
-
-      go("patient"); // go back
+      setDateTime("");
+      go("patient");
 
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("❌ Booking failed (slot may be taken)");
+      console.error("❌ ERROR:", err.response?.data || err.message);
+
+      const msg =
+        err.response?.data?.detail ||
+        "Booking failed (slot may be taken / invalid data)";
+
+      alert(`❌ ${msg}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,24 +64,24 @@ function BookAppointment({ patient, doctor, go }) {
     <div style={{ padding: "20px" }}>
       <h2>Confirm Appointment</h2>
 
-      {/* ✅ SHOW DETAILS */}
+      {/* DETAILS */}
       <div style={{
         border: "1px solid #ccc",
         padding: "15px",
         borderRadius: "8px",
         width: "300px"
       }}>
-        <p><b>Patient ID:</b> {patient.patient_id}</p>
-        <p><b>Patient Name:</b> {patient.name}</p>
+        <p><b>Patient ID:</b> {patient?.patient_id}</p>
+        <p><b>Patient Name:</b> {patient?.name}</p>
 
-        <p><b>Doctor ID:</b> {doctor.doctor_id}</p>
-        <p><b>Doctor:</b> {doctor.name}</p>
-        <p><b>Specialization:</b> {doctor.specialization}</p>
+        <p><b>Doctor ID:</b> {doctor?.doctor_id}</p>
+        <p><b>Doctor:</b> {doctor?.name}</p>
+        <p><b>Specialization:</b> {doctor?.specialization}</p>
       </div>
 
       <br />
 
-      {/* ✅ DATETIME */}
+      {/* DATETIME */}
       <input
         type="datetime-local"
         value={dateTime}
@@ -62,8 +90,8 @@ function BookAppointment({ patient, doctor, go }) {
 
       <br /><br />
 
-      <button onClick={book}>
-        Confirm Appointment
+      <button onClick={book} disabled={loading}>
+        {loading ? "Booking..." : "Confirm Appointment"}
       </button>
     </div>
   );

@@ -105,7 +105,7 @@ function Billing({ go }) {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Total Amount ($)</label>
+                  <label>Total Amount (Rs.)</label>
                   <input
                     type="number"
                     placeholder="0.00"

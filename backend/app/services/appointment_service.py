@@ -12,8 +12,9 @@ def create_appointment(data):
     cursor = conn.cursor()
 
     try:
-        if data.status not in VALID_STATUS:
-            raise Exception("Invalid status")
+        # get sequence value first
+        cursor.execute("SELECT appointment_seq.NEXTVAL FROM dual")
+        appointment_id = cursor.fetchone()[0]
 
         cursor.execute("""
             INSERT INTO APPOINTMENT (
@@ -23,13 +24,14 @@ def create_appointment(data):
                 appointment_datetime,
                 status
             ) VALUES (
-                appointment_seq.NEXTVAL,
+                :appointment_id,
                 :patient_id,
                 :doctor_id,
                 :appointment_datetime,
                 :status
             )
         """, {
+            "appointment_id": appointment_id,
             "patient_id": data.patient_id,
             "doctor_id": data.doctor_id,
             "appointment_datetime": data.appointment_datetime,
@@ -38,7 +40,10 @@ def create_appointment(data):
 
         conn.commit()
 
-        return {"message": "Appointment created successfully"}
+        return {
+            "message": "Appointment created successfully",
+            "appointment_id": appointment_id
+        }
 
     except oracledb.IntegrityError as e:
         error_msg = str(e)
@@ -125,17 +130,23 @@ def get_appointments_by_doctor(doctor_id: int):
 # -------------------------------
 # GET BY PATIENT
 # -------------------------------
-def get_appointments_by_patient(patient_id: int):
+def get_appointments_by_patient_phone(phone: str):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT appointment_id, patient_id, doctor_id,
-               appointment_datetime, status
-        FROM APPOINTMENT
-        WHERE patient_id = :patient_id
-        ORDER BY appointment_datetime
-    """, {"patient_id": patient_id})
+        SELECT 
+            a.appointment_id,
+            a.patient_id,
+            a.doctor_id,
+            a.appointment_datetime,
+            a.status
+        FROM APPOINTMENT a
+        JOIN PATIENT p
+            ON a.patient_id = p.patient_id
+        WHERE p.phone = :phone
+        ORDER BY a.appointment_datetime
+    """, {"phone": phone})
 
     rows = cursor.fetchall()
 
@@ -161,9 +172,6 @@ def update_appointment_status(appointment_id: int, status: str):
     conn = get_connection()
     cursor = conn.cursor()
 
-    if status not in VALID_STATUS:
-        raise Exception("Invalid status")
-
     cursor.execute("""
         UPDATE APPOINTMENT
         SET status = :status
@@ -174,6 +182,8 @@ def update_appointment_status(appointment_id: int, status: str):
     })
 
     if cursor.rowcount == 0:
+        cursor.close()
+        conn.close()
         raise Exception("Appointment not found")
 
     conn.commit()

@@ -41,14 +41,17 @@ def get_prescriptions_by_appointment(appointment_id: int):
     try:
         cursor.execute("""
             SELECT
-                prescription_id,
-                appointment_id,
-                medication_id,
-                dosage,
-                frequency,
-                duration
-            FROM PRESCRIPTION
-            WHERE appointment_id = :1
+                p.prescription_id,
+                p.appointment_id,
+                p.medication_id,
+                m.name AS medication_name,
+                p.dosage,
+                p.frequency,
+                p.duration
+            FROM PRESCRIPTION p
+            JOIN MEDICATION m
+                ON p.medication_id = m.medication_id
+            WHERE p.appointment_id = :1
         """, (appointment_id,))
 
         rows = cursor.fetchall()
@@ -58,9 +61,10 @@ def get_prescriptions_by_appointment(appointment_id: int):
                 "prescription_id": r[0],
                 "appointment_id": r[1],
                 "medication_id": r[2],
-                "dosage": r[3],
-                "frequency": r[4],
-                "duration": r[5],
+                "medication_name": r[3],
+                "dosage": r[4],
+                "frequency": r[5],
+                "duration": r[6],
             }
             for r in rows
         ]

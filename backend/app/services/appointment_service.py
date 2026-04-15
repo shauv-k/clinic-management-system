@@ -72,14 +72,38 @@ def get_all_appointments():
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT appointment_id, patient_id, doctor_id,
-               appointment_datetime, status
-        FROM APPOINTMENT
-        ORDER BY appointment_datetime
+        SELECT 
+            a.appointment_id,
+
+            p.patient_id,
+            p.name,
+
+            d.staff_id,
+            s.name,
+
+            dept.name,
+
+            a.appointment_datetime,
+            a.status
+
+        FROM APPOINTMENT a
+
+        JOIN PATIENT p
+            ON a.patient_id = p.patient_id
+
+        JOIN DOCTOR d
+            ON a.doctor_id = d.staff_id
+
+        JOIN STAFF s
+            ON d.staff_id = s.staff_id
+
+        LEFT JOIN DEPARTMENT dept
+            ON s.department_id = dept.department_id
+
+        ORDER BY a.appointment_datetime
     """)
 
     rows = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
@@ -87,9 +111,12 @@ def get_all_appointments():
         {
             "appointment_id": r[0],
             "patient_id": r[1],
-            "doctor_id": r[2],
-            "appointment_datetime": r[3],
-            "status": r[4],
+            "patient_name": r[2],
+            "doctor_id": r[3],
+            "doctor_name": r[4],
+            "department": r[5],
+            "appointment_datetime": r[6],
+            "status": r[7],
         }
         for r in rows
     ]
@@ -103,15 +130,40 @@ def get_appointments_by_doctor(doctor_id: int):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT appointment_id, patient_id, doctor_id,
-               appointment_datetime, status
-        FROM APPOINTMENT
-        WHERE doctor_id = :doctor_id
-        ORDER BY appointment_datetime
+        SELECT 
+            a.appointment_id,
+
+            p.patient_id,
+            p.name,
+
+            d.staff_id,
+            s.name,
+
+            dept.name,
+
+            a.appointment_datetime,
+            a.status
+
+        FROM APPOINTMENT a
+
+        JOIN PATIENT p
+            ON a.patient_id = p.patient_id
+
+        JOIN DOCTOR d
+            ON a.doctor_id = d.staff_id
+
+        JOIN STAFF s
+            ON d.staff_id = s.staff_id
+
+        LEFT JOIN DEPARTMENT dept
+            ON s.department_id = dept.department_id
+
+        WHERE d.staff_id = :doctor_id
+
+        ORDER BY a.appointment_datetime
     """, {"doctor_id": doctor_id})
 
     rows = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
@@ -119,13 +171,15 @@ def get_appointments_by_doctor(doctor_id: int):
         {
             "appointment_id": r[0],
             "patient_id": r[1],
-            "doctor_id": r[2],
-            "appointment_datetime": r[3],
-            "status": r[4],
+            "patient_name": r[2],
+            "doctor_id": r[3],
+            "doctor_name": r[4],
+            "department": r[5],
+            "appointment_datetime": r[6],
+            "status": r[7],
         }
         for r in rows
     ]
-
 
 # -------------------------------
 # GET BY PATIENT
@@ -137,14 +191,34 @@ def get_appointments_by_patient_phone(phone: str):
     cursor.execute("""
         SELECT 
             a.appointment_id,
-            a.patient_id,
-            a.doctor_id,
+
+            p.patient_id,
+            p.name,
+
+            d.staff_id AS doctor_id,
+            s.name AS doctor_name,
+
+            dept.name AS department,
+
             a.appointment_datetime,
             a.status
+
         FROM APPOINTMENT a
+
         JOIN PATIENT p
             ON a.patient_id = p.patient_id
+
+        JOIN DOCTOR d
+            ON a.doctor_id = d.staff_id
+
+        JOIN STAFF s
+            ON d.staff_id = s.staff_id
+
+        LEFT JOIN DEPARTMENT dept
+            ON s.department_id = dept.department_id
+
         WHERE p.phone = :phone
+
         ORDER BY a.appointment_datetime
     """, {"phone": phone})
 
@@ -157,13 +231,15 @@ def get_appointments_by_patient_phone(phone: str):
         {
             "appointment_id": r[0],
             "patient_id": r[1],
-            "doctor_id": r[2],
-            "appointment_datetime": r[3],
-            "status": r[4],
+            "patient_name": r[2],
+            "doctor_id": r[3],
+            "doctor_name": r[4],
+            "department": r[5],
+            "appointment_datetime": r[6],
+            "status": r[7],
         }
         for r in rows
     ]
-
 
 # -------------------------------
 # UPDATE STATUS

@@ -1,0 +1,72 @@
+/* ================= LAYOUT ================= */
+
+.management-grid {
+  padding: 30px;
+}
+
+.single-column {
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= SEARCH ================= */
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.search-box input.input-field {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+}
+
+.search-box .primary-btn {
+  flex-shrink: 0;
+}
+
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 20px;
+}
+
+/* ================= BILL HEADER ================= */
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+/* ================= STATUS ================= */
+
+.status {
+  font-weight: 600;
+}
+
+.status.paid {
+  color: var(--success);
+}
+
+.status.unpaid {
+  color: var(--error);
+}
+
+/* ================= DETAILS ================= */
+
+.detail-row {
+  margin-top: 8px;
+}
+
+/* ================= UPDATE ================= */
+
+.update-zone {
+  margin-top: 15px;
+}
+
+.update-zone h4 {
+  margin-bottom: 8px;
+}

@@ -1,0 +1,63 @@
+/* ================= CENTER FIX ================= */
+
+.management-grid {
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= CREATE ================= */
+
+.two-column {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.two-column .card {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* ================= SEARCH ================= */
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ================= LOOKUP ================= */
+
+.single-column {
+  display: flex;
+  justify-content: center;
+}
+
+.single-column .card {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 15px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .two-column {
+    flex-direction: column;
+  }
+}

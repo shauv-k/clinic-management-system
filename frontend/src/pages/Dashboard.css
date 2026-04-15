@@ -1,0 +1,143 @@
+.dashboard-container {
+  min-height: 100vh;
+}
+
+/* HEADER */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 24px;
+  background: var(--gradient-header);
+  box-shadow: var(--shadow);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-left,
+.header-right {
+  width: 120px;
+}
+
+.header-center {
+  text-align: center;
+  flex: 1;
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 600;
+
+  background: var(--gradient-title);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 🔥 FLEX LAYOUT (FIXES EVERYTHING) */
+.dashboard-grid {
+  padding: 40px 30px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  justify-content: center; /* ✅ centers rows */
+  gap: 30px;
+
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* CARD */
+.dashboard-card {
+  flex: 0 0 calc(33.333% - 30px); /* ✅ max 3 per row */
+  max-width: 260px;
+  min-width: 240px;
+
+  background: var(--gradient-card);
+  border-radius: var(--radius);
+  padding: 22px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  min-height: 220px;
+
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+/* HOVER */
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* CONTENT */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ICON */
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: var(--primary);
+  transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover .card-icon {
+  transform: scale(1.15);
+}
+
+/* TEXT */
+.card-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* BUTTON */
+.primary-btn {
+  margin-top: auto;
+
+  background: var(--gradient-button);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  width: 100%;
+
+  transition: all 0.2s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* RESPONSIVE */
+
+/* TABLET */
+@media (max-width: 900px) {
+  .dashboard-card {
+    flex: 0 0 calc(50% - 30px); /* 2 per row */
+  }
+}
+
+/* MOBILE */
+@media (max-width: 500px) {
+  .dashboard-card {
+    flex: 0 0 100%; /* 1 per row */
+  }
+}

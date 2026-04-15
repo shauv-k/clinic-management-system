@@ -1,0 +1,96 @@
+/* ================= LAYOUT ================= */
+
+.management-grid {
+  padding: 30px;
+}
+
+.single-column {
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= CARD ================= */
+
+.card {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ================= FORM ================= */
+
+.form-group {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ================= TEXTAREA ================= */
+
+textarea.input-field {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 20px;
+}
+
+/* ================= DATA BLOCK ================= */
+
+.data-block {
+  margin-top: 12px;
+}
+
+.data-block p {
+  margin-top: 4px;
+  color: var(--text-light);
+}
+
+/* ================= DASHBOARD MENU ================= */
+
+.dashboard-grid {
+  padding: 40px 30px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.dashboard-card {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ================= CONTENT ================= */
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-icon {
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.card-title {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 16px;
+}

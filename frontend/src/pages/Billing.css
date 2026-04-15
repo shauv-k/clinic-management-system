@@ -1,67 +1,72 @@
-/* Status Colors */
-.status-badge.paid {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.85rem;
+/* ================= LAYOUT ================= */
+
+.management-grid {
+  padding: 30px;
 }
 
-.status-badge.unpaid {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 0.85rem;
+.single-column {
+  display: flex;
+  justify-content: center;
 }
 
-.bill-result-card {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 25px;
-    margin-top: 25px;
-    text-align: left;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+/* ================= SEARCH ================= */
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.bill-id-tag {
-    font-weight: 700;
-    color: var(--secondary-blue);
-    font-size: 1.1rem;
+.search-box input.input-field {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
 }
 
-.amount-text {
-    color: var(--primary-blue);
-    font-size: 1.2rem;
-    font-weight: bold;
+.search-box .primary-btn {
+  flex-shrink: 0;
 }
 
-.update-payment-zone {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 2px dashed #eee;
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 20px;
 }
 
-.update-payment-zone h4 {
-    margin-bottom: 15px;
-    color: var(--dark-grey);
-    font-size: 1rem;
+/* ================= BILL HEADER ================= */
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-/* Form refinement */
-select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: white;
-    font-size: 1rem;
+/* ================= STATUS ================= */
+
+.status {
+  font-weight: 600;
 }
 
-select:focus {
-    border-color: var(--primary-blue);
-    outline: none;
+.status.paid {
+  color: var(--success);
+}
+
+.status.unpaid {
+  color: var(--error);
+}
+
+/* ================= DETAILS ================= */
+
+.detail-row {
+  margin-top: 8px;
+}
+
+/* ================= UPDATE ================= */
+
+.update-zone {
+  margin-top: 15px;
+}
+
+.update-zone h4 {
+  margin-bottom: 8px;
 }

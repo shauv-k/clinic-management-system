@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import "./AppointmentCreate.css";
 
-function AppointmentCreate({ goBack }) {
+function AppointmentCreate({ goBack, goHome }) {
   const [phone, setPhone] = useState("");
   const [patient, setPatient] = useState(null);
 
@@ -14,7 +15,6 @@ function AppointmentCreate({ goBack }) {
 
   const [banner, setBanner] = useState({ message: "", type: "" });
 
-  // 📅 FORMAT DATE
   const formatDate = (dt) => {
     return new Date(dt).toLocaleString("en-IN", {
       dateStyle: "medium",
@@ -22,7 +22,6 @@ function AppointmentCreate({ goBack }) {
     });
   };
 
-  // 🔍 PATIENT
   const getPatient = async () => {
     try {
       const res = await axios.get(
@@ -31,16 +30,17 @@ function AppointmentCreate({ goBack }) {
 
       if (res.data.error) {
         setPatient(null);
+        setBanner({ message: "Patient not found", type: "error" });
         return;
       }
 
       setPatient(res.data);
     } catch {
       setPatient(null);
+      setBanner({ message: "Patient not found", type: "error" });
     }
   };
 
-  // 👨‍⚕️ DOCTORS
   const getDoctors = async () => {
     try {
       const res = await axios.get(
@@ -53,7 +53,6 @@ function AppointmentCreate({ goBack }) {
     }
   };
 
-  // ✅ CREATE
   const createAppointment = async () => {
     try {
       setBanner({ message: "", type: "" });
@@ -76,7 +75,7 @@ function AppointmentCreate({ goBack }) {
       });
 
       setBanner({
-        message: `✅ Appointment Created (ID: ${res.data.appointment_id})`,
+        message: `Appointment created (ID: ${res.data.appointment_id})`,
         type: "success",
       });
 
@@ -89,12 +88,12 @@ function AppointmentCreate({ goBack }) {
         msg.toLowerCase().includes("doctor")
       ) {
         setBanner({
-          message: "❌ Doctor is occupied at this time. Choose another slot.",
+          message: "Doctor is occupied at this time. Choose another slot.",
           type: "error",
         });
       } else {
         setBanner({
-          message: "❌ Failed to create appointment",
+          message: "Failed to create appointment",
           type: "error",
         });
       }
@@ -102,179 +101,160 @@ function AppointmentCreate({ goBack }) {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <button onClick={goBack}>⬅ Back</button>
-      <h3>Create Appointment</h3>
+    <div className="dashboard-container">
 
-      {/* 🔍 PATIENT */}
-      <div style={{ marginTop: "10px" }}>
-        <input
-          placeholder="Patient Phone"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={inputStyle}
-        />
-        <button onClick={getPatient} style={buttonStyle}>
-          Search
-        </button>
-      </div>
+      {/* 🔥 FIXED HEADER */}
+      <header className="app-header">
 
-      {/* ✅ PATIENT TABLE */}
-      {patient && (
-        <table style={tableStyle}>
-          <tbody>
-            <tr><td><b>ID</b></td><td>{patient.patient_id}</td></tr>
-            <tr><td><b>Name</b></td><td>{patient.name}</td></tr>
-            <tr><td><b>Phone</b></td><td>{patient.phone}</td></tr>
-            <tr><td><b>Gender</b></td><td>{patient.gender}</td></tr>
-            <tr><td><b>DOB</b></td><td>{formatDate(patient.dob)}</td></tr>
-            <tr><td><b>Address</b></td><td>{patient.address}</td></tr>
-          </tbody>
-        </table>
-      )}
-
-      {/* 🏥 DEPARTMENT */}
-      {patient && (
-        <div style={{ marginTop: "10px" }}>
-          <input
-            placeholder="Department"
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            style={inputStyle}
-          />
-          <button onClick={getDoctors} style={buttonStyle}>
-            Get Doctors
+        <div className="header-left">
+          {/* BACK → Appointment page */}
+          <button className="back-btn" onClick={goBack}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
         </div>
-      )}
 
-      {/* 👨‍⚕️ DOCTORS TABLE */}
-      {doctors.length > 0 && (
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Specialization</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {doctors.map((d) => (
-              <tr key={d.doctor_id} style={{ textAlign: "center" }}>
-                <td>{d.doctor_id}</td>
-                <td>{d.name}</td>
-                <td>{d.specialization}</td>
-                <td>
-                  <button onClick={() => setDoctor(d)} style={buttonStyle}>
-                    Select
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* 📅 DATE */}
-      {doctor && (
-        <div style={{ marginTop: "10px" }}>
-          <input
-            type="datetime-local"
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-            style={inputStyle}
-          />
+        <div className="header-center">
+          <h1 className="app-title">Create Appointment</h1>
         </div>
-      )}
 
-      {/* CREATE BUTTON */}
-      {dateTime && (
-        <button
-          onClick={createAppointment}
-          style={{ ...buttonStyle, marginTop: "10px" }}
-        >
-          Create Appointment
-        </button>
-      )}
-
-      {/* RESULT BOX */}
-      {result && (
-        <div style={resultBox}>
-          <h4>Appointment Created</h4>
-          <p><b>ID:</b> {result.id}</p>
-          <p><b>Doctor:</b> {result.doctor}</p>
-          <p><b>Department:</b> {result.department}</p>
-          <p><b>Date:</b> {result.date}</p>
+        <div className="header-right">
+          {/* HOME → Dashboard */}
+          <button className="back-btn" onClick={() => goHome("dashboard")}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <path d="M9 22V12h6v10" />
+            </svg>
+          </button>
         </div>
-      )}
 
-      {/* 🔥 BOTTOM BANNER */}
+      </header>
+
+      <main className="management-grid single-column">
+
+        <div className="card">
+
+          <h2>Patient Lookup</h2>
+
+          <div className="form-row">
+            <input
+              className="input-field"
+              placeholder="Enter patient phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <button className="primary-btn" onClick={getPatient}>
+              Search
+            </button>
+          </div>
+
+          {patient && (
+            <table className="data-table">
+              <tbody>
+                <tr><td>ID</td><td>{patient.patient_id}</td></tr>
+                <tr><td>Name</td><td>{patient.name}</td></tr>
+                <tr><td>Phone</td><td>{patient.phone}</td></tr>
+                <tr><td>Gender</td><td>{patient.gender}</td></tr>
+                <tr><td>DOB</td><td>{formatDate(patient.dob)}</td></tr>
+                <tr><td>Address</td><td>{patient.address}</td></tr>
+              </tbody>
+            </table>
+          )}
+
+          {patient && (
+            <>
+              <h3>Select Department</h3>
+
+              <div className="form-row">
+                <input
+                  className="input-field"
+                  placeholder="Department"
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                />
+                <button className="primary-btn" onClick={getDoctors}>
+                  Get Doctors
+                </button>
+              </div>
+            </>
+          )}
+
+          {doctors.length > 0 && (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Specialization</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {doctors.map((d) => (
+                  <tr key={d.doctor_id}>
+                    <td>{d.doctor_id}</td>
+                    <td>{d.name}</td>
+                    <td>{d.specialization}</td>
+                    <td>
+                      <button
+                        className="primary-btn small-btn"
+                        onClick={() => setDoctor(d)}
+                      >
+                        Select
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {doctor && (
+            <>
+              <h3>Select Date & Time</h3>
+
+              <input
+                type="datetime-local"
+                className="input-field"
+                value={dateTime}
+                onChange={(e) => setDateTime(e.target.value)}
+              />
+            </>
+          )}
+
+          {dateTime && (
+            <button
+              className="primary-btn full-width"
+              onClick={createAppointment}
+            >
+              Create Appointment
+            </button>
+          )}
+
+          {result && (
+            <div className="result-card">
+              <h3>Appointment Created</h3>
+              <p><b>ID:</b> {result.id}</p>
+              <p><b>Doctor:</b> {result.doctor}</p>
+              <p><b>Department:</b> {result.department}</p>
+              <p><b>Date:</b> {result.date}</p>
+            </div>
+          )}
+
+        </div>
+      </main>
+
       {banner.message && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            width: "100%",
-            padding: "15px",
-            backgroundColor:
-              banner.type === "success" ? "#14532d" : "#7f1d1d",
-            color: "white",
-            fontWeight: "bold",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-        >
+        <div className={`banner ${banner.type}`}>
           <span>{banner.message}</span>
-
-          <button
-            onClick={() => setBanner({ message: "", type: "" })}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "white",
-              fontSize: "18px",
-              cursor: "pointer",
-            }}
-          >
-            ❌
+          <button onClick={() => setBanner({ message: "", type: "" })}>
+            ✕
           </button>
         </div>
       )}
     </div>
   );
 }
-
-/* 🔥 STYLES */
-const inputStyle = {
-  padding: "8px",
-  marginRight: "10px",
-  borderRadius: "4px",
-  border: "1px solid #666",
-};
-
-const buttonStyle = {
-  padding: "8px 12px",
-  borderRadius: "4px",
-  border: "none",
-  backgroundColor: "#4CAF50",
-  color: "white",
-  cursor: "pointer",
-};
-
-const tableStyle = {
-  width: "100%",
-  marginTop: "10px",
-  borderCollapse: "collapse",
-};
-
-const resultBox = {
-  border: "2px solid green",
-  marginTop: "15px",
-  padding: "10px",
-};
 
 export default AppointmentCreate;

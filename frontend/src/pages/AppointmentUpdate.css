@@ -1,0 +1,39 @@
+.single-column {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.card {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* FORM */
+.form-group {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+}
+
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* RESULT */
+.result-card {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: var(--radius);
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+}

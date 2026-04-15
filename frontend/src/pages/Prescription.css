@@ -1,56 +1,63 @@
-/* Mode selection layout */
-.mode-selection-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    width: 100%;
+/* ================= CENTER FIX ================= */
+
+.management-grid {
+  display: flex;
+  justify-content: center;
 }
 
-.selection-card {
-    cursor: pointer;
-    transition: all 0.3s ease;
+/* ================= CREATE ================= */
+
+.two-column {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-.selection-card:hover {
-    background-color: var(--light-blue);
+.two-column .card {
+  flex: 1;
+  min-width: 300px;
 }
 
-/* Centering form for specific modes */
-.centered-section {
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
+/* ================= SEARCH ================= */
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-/* Results styling */
-.prescription-results {
-    margin-top: 20px;
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
 }
 
-.prescription-card-item {
-    background: var(--grey-background);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 15px;
-    text-align: left;
-    border-left: 5px solid var(--secondary-blue);
+/* ================= LOOKUP ================= */
+
+.single-column {
+  display: flex;
+  justify-content: center;
 }
 
-.appt-id-badge {
-    background: var(--secondary-blue);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
+.single-column .card {
+  width: 100%;
+  max-width: 600px;
 }
 
-/* Form refinement */
-.submit-btn {
-    width: 100%;
-    margin-top: 20px;
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 15px;
 }
 
-.registration-form .form-group {
-    text-align: left;
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .two-column {
+    flex-direction: column;
+  }
 }

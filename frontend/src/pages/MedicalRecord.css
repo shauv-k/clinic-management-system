@@ -1,94 +1,96 @@
-/* Maintain Hospital Palette */
-.centered-section {
-    max-width: 700px;
-    margin: 0 auto;
-    width: 100%;
+/* ================= LAYOUT ================= */
+
+.management-grid {
+  padding: 30px;
 }
 
-/* Ensure all form fields are consistently white */
-.registration-form input, 
-.registration-form textarea {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #ffffff !important; /* Force white background */
-    color: #343a40; /* Dark grey text for visibility */
-    font-family: inherit;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
+.single-column {
+  display: flex;
+  justify-content: center;
 }
 
-/* Specific styling for the multiline fields */
-.registration-form textarea {
-    min-height: 120px;
-    resize: vertical;
+/* ================= CARD ================= */
+
+.card {
+  width: 100%;
+  max-width: 700px;
 }
 
-/* Uniform focus state */
-.registration-form input:focus, 
-.registration-form textarea:focus {
-    border-color: var(--primary-blue);
-    outline: none;
-    background-color: #ffffff;
+/* ================= FORM ================= */
+
+.form-group {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* Result Card and other styles remain the same... */
-/* Result Card Styling */
-.record-result-card {
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 25px;
-    margin-top: 25px;
-    text-align: left;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+/* ================= TEXTAREA ================= */
+
+textarea.input-field {
+  min-height: 90px;
+  resize: vertical;
 }
 
-.record-id-tag {
-    font-weight: 700;
-    color: var(--secondary-blue);
-    font-size: 1.1rem;
+/* ================= RESULT ================= */
+
+.result-card {
+  margin-top: 20px;
 }
 
-.appt-id-mini {
-    background: var(--light-blue);
-    color: var(--primary-blue);
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.clinical-data {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+/* ================= DATA BLOCK ================= */
 
 .data-block {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f1f1f1;
-}
-
-.data-block strong {
-    display: block;
-    color: var(--dark-grey);
-    font-size: 0.9rem;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  margin-top: 12px;
 }
 
 .data-block p {
-    margin: 0;
-    line-height: 1.6;
-    color: #444;
+  margin-top: 4px;
+  color: var(--text-light);
 }
 
-.diagnosis-text {
-    color: #d32f2f; /* Reddish for diagnosis distinction */
-    font-weight: 600;
+/* ================= DASHBOARD MENU ================= */
+
+.dashboard-grid {
+  padding: 40px 30px;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.dashboard-card {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* ================= CONTENT ================= */
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-icon {
+  margin-bottom: 12px;
+  color: var(--primary);
+}
+
+.card-title {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 16px;
 }

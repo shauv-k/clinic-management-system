@@ -1,19 +1,18 @@
 import { useState } from "react";
 import axios from "axios";
+import "./AppointmentLookup.css";
 
-function AppointmentLookup({ goBack }) {
+function AppointmentLookup({ goBack, goHome }) {
   const [phone, setPhone] = useState("");
   const [appointments, setAppointments] = useState([]);
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState("");
+  const [banner, setBanner] = useState({ message: "", type: "" });
 
   const search = async () => {
     try {
-      setMessage("");
+      setBanner({ message: "", type: "" });
 
       if (!phone) {
-        setType("error");
-        setMessage("⚠️ Please enter phone number");
+        setBanner({ message: "Please enter phone number", type: "error" });
         return;
       }
 
@@ -23,21 +22,18 @@ function AppointmentLookup({ goBack }) {
 
       if (!res.data || res.data.length === 0) {
         setAppointments([]);
-        setType("error");
-        setMessage("❌ No appointments found");
+        setBanner({ message: "No appointments found", type: "error" });
         return;
       }
 
       setAppointments(res.data);
 
-    } catch (err) {
+    } catch {
       setAppointments([]);
-      setType("error");
-      setMessage("❌ Failed to fetch appointments");
+      setBanner({ message: "Failed to fetch appointments", type: "error" });
     }
   };
 
-  // 📅 FORMAT DATE
   const formatDate = (dt) => {
     return new Date(dt).toLocaleString("en-IN", {
       dateStyle: "medium",
@@ -46,141 +42,106 @@ function AppointmentLookup({ goBack }) {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="dashboard-container">
 
-      {/* 🔴 ERROR BANNER ONLY */}
-      {message && (
-        <div
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 1000,
-            padding: "12px",
-            borderRadius: "6px",
-            backgroundColor: "#7f1d1d",
-            color: "white",
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: "15px",
-          }}
-        >
-          {message}
+      {/* HEADER */}
+      <header className="app-header">
+
+        <div className="header-left">
+          <button className="back-btn" onClick={goBack}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
         </div>
-      )}
 
-      <button onClick={goBack}>⬅ Back</button>
+        <div className="header-center">
+          <h1 className="app-title">Appointment Lookup</h1>
+        </div>
 
-      <h3>Lookup by Phone</h3>
+        <div className="header-right">
+          <button className="back-btn" onClick={() => goHome("dashboard")}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <path d="M9 22V12h6v10" />
+            </svg>
+          </button>
+        </div>
 
-      {/* SEARCH */}
-      <div style={{ marginTop: "10px" }}>
-        <input
-          placeholder="Enter Phone Number"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={inputStyle}
-        />
+      </header>
 
-        <button onClick={search} style={buttonStyle}>
-          Search
-        </button>
-      </div>
+      <main className="management-grid single-column">
 
-      {/* TABLE */}
-      {appointments.length > 0 && (
-        <div
-          style={{
-            marginTop: "20px",
-            overflowX: "auto",
-            backgroundColor: "#1e1e1e",
-            padding: "15px",
-            borderRadius: "8px",
-          }}
-        >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              tableLayout: "fixed",
-              color: "white",
-            }}
-          >
-            <thead>
-              <tr style={{ borderBottom: "2px solid #666" }}>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Patient</th>
-                <th style={thStyle}>Doctor</th>
-                <th style={thStyle}>Department</th>
-                <th style={thStyle}>Date</th>
-                <th style={thStyle}>Status</th>
-              </tr>
-            </thead>
+        <div className="card">
 
-            <tbody>
-              {appointments.map((a) => (
-                <tr key={a.appointment_id} style={{ textAlign: "center" }}>
-                  <td style={tdStyle}>{a.appointment_id}</td>
-                  <td style={tdStyle}>{a.patient_name}</td>
-                  <td style={tdStyle}>{a.doctor_name}</td>
-                  <td style={tdStyle}>{a.department}</td>
-                  <td style={tdStyle}>
-                    {formatDate(a.appointment_datetime)}
-                  </td>
-                  <td
-                    style={{
-                      ...tdStyle,
-                      color:
-                        a.status === "COMPLETED"
-                          ? "#4CAF50"
-                          : a.status === "CANCELLED"
-                          ? "#f44336"
-                          : a.status === "NO_SHOW"
-                          ? "#ff9800"
-                          : "#2196f3",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {a.status}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <h2>Search by Phone</h2>
+
+          {/* SEARCH */}
+          <div className="form-row">
+            <input
+              className="input-field"
+              placeholder="Enter phone number"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <button className="primary-btn" onClick={search}>
+              Search
+            </button>
+          </div>
+
+          {/* TABLE */}
+          {appointments.length > 0 && (
+            <div className="table-container">
+
+              <table className="data-table">
+
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Department</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {appointments.map((a) => (
+                    <tr key={a.appointment_id}>
+                      <td>{a.appointment_id}</td>
+                      <td>{a.patient_name}</td>
+                      <td>{a.doctor_name}</td>
+                      <td>{a.department}</td>
+                      <td>{formatDate(a.appointment_datetime)}</td>
+                      <td className={`status ${a.status.toLowerCase()}`}>
+                        {a.status}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+
+            </div>
+          )}
+
+        </div>
+
+      </main>
+
+      {/* BANNER */}
+      {banner.message && (
+        <div className={`banner ${banner.type}`}>
+          <span>{banner.message}</span>
+          <button onClick={() => setBanner({ message: "", type: "" })}>
+            ✕
+          </button>
         </div>
       )}
     </div>
   );
 }
-
-// 🎨 STYLES
-const inputStyle = {
-  padding: "8px",
-  marginRight: "10px",
-  borderRadius: "4px",
-  border: "1px solid #666",
-  background: "#2a2a2a",
-  color: "white",
-};
-
-const buttonStyle = {
-  padding: "8px 12px",
-  borderRadius: "4px",
-  border: "none",
-  backgroundColor: "#4CAF50",
-  color: "white",
-  cursor: "pointer",
-};
-
-const thStyle = {
-  padding: "10px",
-  wordWrap: "break-word",
-};
-
-const tdStyle = {
-  padding: "10px",
-  borderBottom: "1px solid #444",
-  wordWrap: "break-word",
-  whiteSpace: "normal",
-};
 
 export default AppointmentLookup;

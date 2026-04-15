@@ -1,0 +1,62 @@
+/* Reuse dashboard styles */
+
+/* GRID FIX (centered properly) */
+.dashboard-grid {
+  padding: 40px 30px;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* CARD (same system) */
+.dashboard-card {
+  flex: 0 0 calc(33.333% - 30px);
+  max-width: 260px;
+  min-width: 220px;
+
+  background: var(--gradient-card);
+  border-radius: var(--radius);
+  padding: 22px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  min-height: 200px;
+
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+}

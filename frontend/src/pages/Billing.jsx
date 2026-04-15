@@ -14,7 +14,7 @@ function Billing({ go }) {
     payment_mode: ""
   });
 
-  // ================= CREATE BILL =================
+  // ================= CREATE =================
   const createBill = async () => {
     try {
       if (!form.appointment_id || !form.amount) {
@@ -40,12 +40,11 @@ function Billing({ go }) {
 
       setMode("");
     } catch (err) {
-      console.error(err.response?.data || err.message);
       alert(err.response?.data?.detail || "❌ Error creating bill");
     }
   };
 
-  // ================= GET BILL =================
+  // ================= GET =================
   const getBill = async () => {
     try {
       if (!appointmentId) {
@@ -58,14 +57,13 @@ function Billing({ go }) {
       );
 
       setBill(res.data);
-    } catch (err) {
-      console.error(err.response?.data || err.message);
+    } catch {
       alert("❌ Bill not found");
       setBill(null);
     }
   };
 
-  // ================= UPDATE PAYMENT =================
+  // ================= UPDATE =================
   const updatePayment = async () => {
     try {
       if (!updateMode) {
@@ -79,12 +77,17 @@ function Billing({ go }) {
 
       alert("✅ Payment updated");
 
-      getBill();
+      getBill(); // refresh
       setUpdateMode("");
-    } catch (err) {
-      console.error(err.response?.data || err.message);
+    } catch {
       alert("❌ Update failed");
     }
+  };
+
+  // 🔥 STATUS LOGIC
+  const getStatus = () => {
+    if (!bill) return "";
+    return bill.payment_mode ? "PAID" : "UNPAID";
   };
 
   return (
@@ -129,7 +132,7 @@ function Billing({ go }) {
           </div>
         )}
 
-        {/* CREATE */}
+        {/* ================= CREATE ================= */}
         {mode === "create" && (
           <section className="management-section centered-section">
             <div className="card">
@@ -165,12 +168,14 @@ function Billing({ go }) {
                 <option value="UPI">UPI</option>
               </select>
 
-              <button onClick={createBill}>Create Bill</button>
+              <button className="card-button" onClick={createBill}>
+                Create Bill
+              </button>
             </div>
           </section>
         )}
 
-        {/* LOOKUP */}
+        {/* ================= LOOKUP ================= */}
         {mode === "lookup" && (
           <section className="management-section centered-section">
             <div className="card">
@@ -182,30 +187,70 @@ function Billing({ go }) {
                 onChange={(e) => setAppointmentId(e.target.value)}
               />
 
-              <button onClick={getBill}>Search</button>
+              <button className="card-button" onClick={getBill}>
+                Search
+              </button>
 
               {bill && (
-                <div>
-                  <p>Bill ID: {bill.bill_id}</p>
-                  <p>Amount: ₹{bill.amount}</p>
-                  <p>Mode: {bill.payment_mode || "Not Set"}</p>
+                <div className="bill-result-card">
 
-                  <select
-                    value={updateMode}
-                    onChange={(e) => setUpdateMode(e.target.value)}
-                  >
-                    <option value="">Select Mode</option>
-                    <option value="CASH">CASH</option>
-                    <option value="CARD">CARD</option>
-                    <option value="UPI">UPI</option>
-                  </select>
+                  {/* 🔥 HEADER */}
+                  <div className="result-header">
+                    <span className="bill-id-tag">
+                      Bill #{bill.bill_id}
+                    </span>
 
-                  <button onClick={updatePayment}>Update</button>
+                    <span className={`status-badge ${getStatus().toLowerCase()}`}>
+                      {getStatus()}
+                    </span>
+                  </div>
+
+                  {/* DETAILS */}
+                  <div className="detail-row">
+                    <span><b>Amount:</b></span>
+                    <span>₹{bill.amount}</span>
+                  </div>
+
+                  <div className="detail-row">
+                    <span><b>Payment Mode:</b></span>
+                    <span>{bill.payment_mode || "Not Set"}</span>
+                  </div>
+
+                  <div className="detail-row">
+                    <span><b>Status:</b></span>
+                    <span>{getStatus()}</span>
+                  </div>
+
+                  {/* UPDATE */}
+                  <div className="update-payment-zone">
+                    <h4>Update Payment</h4>
+
+                    <div className="search-box">
+                      <select
+                        value={updateMode}
+                        onChange={(e) => setUpdateMode(e.target.value)}
+                      >
+                        <option value="">Select Mode</option>
+                        <option value="CASH">CASH</option>
+                        <option value="CARD">CARD</option>
+                        <option value="UPI">UPI</option>
+                      </select>
+
+                      <button
+                        className="card-button outline"
+                        onClick={updatePayment}
+                      >
+                        Update
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
               )}
             </div>
           </section>
         )}
+
       </main>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import Dashboard from "./pages/Dashboard";
 import PatientPage from "./pages/PatientPage";
-import AppointmentPage from "./pages/AppointmentPage";
+import Appointment from "./pages/Appointment";
 import Prescription from "./pages/Prescription";
 import Billing from "./pages/Billing";
 import MedicalRecord from "./pages/MedicalRecord";
@@ -17,7 +17,7 @@ function App() {
     return <PatientPage go={setStep} />;
 
   if (step === "appointment")
-    return <AppointmentPage go={setStep} />;
+    return <Appointment go={setStep} />;
   
   if (step === "prescription")
     return <Prescription go={setStep} />;

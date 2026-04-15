@@ -16,29 +16,35 @@ function Prescription({ go }) {
     duration: ""
   });
 
-  // 🔥 MEDICINE SEARCH
+  const [created, setCreated] = useState(null);
+
+  // 🔍 Medicine lookup
   const [searchName, setSearchName] = useState("");
   const [medications, setMedications] = useState([]);
 
-  // ================= MEDICINE LOOKUP =================
+  // ================= SEARCH MEDICINE =================
   const searchMedicine = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/medications/by-name/${searchName}`
+        "http://localhost:8000/medications/search",
+        { params: { name: searchName } }
       );
       setMedications(res.data);
     } catch {
-      alert("❌ No medicines found");
       setMedications([]);
     }
   };
 
-  // ================= SELECT MEDICINE =================
-  const selectMedicine = (med) => {
-    setForm({
-      ...form,
-      medication_id: med.medication_id
-    });
+  // ================= GET ALL =================
+  const getAllMedicines = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/medications"
+      );
+      setMedications(res.data);
+    } catch {
+      setMedications([]);
+    }
   };
 
   // ================= CREATE =================
@@ -49,16 +55,40 @@ function Prescription({ go }) {
         return;
       }
 
-      await axios.post("http://localhost:8000/prescriptions", {
+      const payload = {
         appointment_id: Number(form.appointment_id),
         medication_id: Number(form.medication_id),
         dosage: form.dosage,
         frequency: form.frequency,
         duration: form.duration
+      };
+
+      await axios.post("http://localhost:8000/prescriptions", payload);
+
+      // 🔥 ALWAYS FETCH MEDICINE NAME FROM BACKEND
+      let medName = "Unknown";
+
+      try {
+        const res = await axios.get("http://localhost:8000/medications");
+
+        const med = res.data.find(
+          (m) => m.medication_id === Number(form.medication_id)
+        );
+
+        if (med) medName = med.name;
+      } catch {
+        // fallback remains "Unknown"
+      }
+
+      setCreated({
+        appointment_id: form.appointment_id,
+        medication_name: medName,
+        dosage: form.dosage,
+        frequency: form.frequency,
+        duration: form.duration
       });
 
-      alert("✅ Prescription added");
-
+      // reset form
       setForm({
         appointment_id: "",
         medication_id: "",
@@ -67,10 +97,8 @@ function Prescription({ go }) {
         duration: ""
       });
 
-      setMode("");
     } catch (err) {
-      console.error(err.response?.data);
-      alert("❌ Error creating prescription");
+      alert(err.response?.data?.detail || "❌ Error creating prescription");
     }
   };
 
@@ -83,7 +111,6 @@ function Prescription({ go }) {
 
       setPrescriptions(res.data);
     } catch {
-      alert("❌ No prescription found");
       setPrescriptions([]);
     }
   };
@@ -100,8 +127,12 @@ function Prescription({ go }) {
       {/* ================= MENU ================= */}
       {mode === "" && (
         <div className="mode-selection-container">
-          <button onClick={() => setMode("create")}>Create</button>
-          <button onClick={() => setMode("lookup")}>Lookup</button>
+          <button onClick={() => setMode("create")}>
+            Create Prescription
+          </button>
+          <button onClick={() => setMode("lookup")}>
+            Prescription Lookup
+          </button>
         </div>
       )}
 
@@ -109,7 +140,7 @@ function Prescription({ go }) {
       {mode === "create" && (
         <div style={{ display: "flex", gap: "20px" }}>
 
-          {/* 🔥 LEFT SIDE FORM */}
+          {/* LEFT */}
           <div style={{ flex: 1 }}>
             <h3>Create Prescription</h3>
 
@@ -122,9 +153,11 @@ function Prescription({ go }) {
             />
 
             <input
-              placeholder="Medication ID (auto-filled)"
+              placeholder="Medication ID"
               value={form.medication_id}
-              readOnly
+              onChange={(e) =>
+                setForm({ ...form, medication_id: e.target.value })
+              }
             />
 
             <input
@@ -154,35 +187,62 @@ function Prescription({ go }) {
             <button onClick={createPrescription}>
               Submit Prescription
             </button>
+
+            {/* ✅ RESULT */}
+            {created && (
+              <div style={{
+                border: "2px solid green",
+                marginTop: "15px",
+                padding: "10px"
+              }}>
+                <h4>✅ Prescription Created</h4>
+                <p><b>Appointment ID:</b> {created.appointment_id}</p>
+                <p><b>Medicine:</b> {created.medication_name}</p>
+                <p><b>Dosage:</b> {created.dosage}</p>
+                <p><b>Frequency:</b> {created.frequency}</p>
+                <p><b>Duration:</b> {created.duration}</p>
+              </div>
+            )}
           </div>
 
-          {/* 🔥 RIGHT SIDE MEDICINE SEARCH */}
+          {/* RIGHT */}
           <div style={{ flex: 1 }}>
             <h3>Medicine Lookup</h3>
 
             <input
-              placeholder="Search medicine name"
+              placeholder="Search medicine"
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
             />
 
-            <button onClick={searchMedicine}>Search</button>
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <button onClick={searchMedicine}>Search</button>
+              <button onClick={getAllMedicines}>Get All</button>
+            </div>
 
-            {medications.map((m) => (
-              <div
-                key={m.medication_id}
-                style={{
-                  border: "1px solid #ccc",
-                  marginTop: "10px",
-                  padding: "10px",
-                  cursor: "pointer"
-                }}
-                onClick={() => selectMedicine(m)}
-              >
-                <p><b>{m.name}</b></p>
-                <p>ID: {m.medication_id}</p>
-              </div>
-            ))}
+            {medications.length > 0 && (
+              <table style={{
+                width: "100%",
+                marginTop: "15px",
+                borderCollapse: "collapse"
+              }}>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {medications.map((m) => (
+                    <tr key={m.medication_id}>
+                      <td>{m.medication_id}</td>
+                      <td>{m.name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       )}
@@ -190,7 +250,7 @@ function Prescription({ go }) {
       {/* ================= LOOKUP ================= */}
       {mode === "lookup" && (
         <div>
-          <h3>Lookup Prescription</h3>
+          <h3>Prescription Lookup</h3>
 
           <input
             placeholder="Appointment ID"
@@ -201,7 +261,11 @@ function Prescription({ go }) {
           <button onClick={getPrescription}>Search</button>
 
           {prescriptions.map((p, i) => (
-            <div key={i} style={{ border: "1px solid white", marginTop: "10px", padding: "10px" }}>
+            <div key={i} style={{
+              border: "1px solid #ccc",
+              marginTop: "10px",
+              padding: "10px"
+            }}>
               <p><b>Medicine:</b> {p.medication_name}</p>
               <p><b>Dosage:</b> {p.dosage}</p>
               <p><b>Frequency:</b> {p.frequency}</p>

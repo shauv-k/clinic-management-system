@@ -1,171 +1,207 @@
 import { useState } from "react";
 import axios from "axios";
-import "./AppointmentPage.css";
 
-function AppointmentPage({ go }) {
+function Appointment({ go }) {
+  const [mode, setMode] = useState("");
+
+  const [form, setForm] = useState({
+    patient_id: "",
+    doctor_id: "",
+    datetime: "",
+    status: "SCHEDULED"
+  });
+
   const [phone, setPhone] = useState("");
-  const [patient, setPatient] = useState(null);
-  const [spec, setSpec] = useState("");
-  const [doctors, setDoctors] = useState([]);
-  const [doctor, setDoctor] = useState(null);
-  const [dateTime, setDateTime] = useState("");
-
-  // 🔍 LOOKUP STATES
-  const [lookupId, setLookupId] = useState("");
   const [appointments, setAppointments] = useState([]);
 
-  // 🔍 SEARCH PATIENT
-  const searchPatient = async () => {
-    try {
-      const res = await axios.get(`http://localhost:8000/patients/by-phone/${phone}`);
-      setPatient(res.data);
-    } catch {
-      alert("Patient not found");
-      setPatient(null);
-    }
-  };
+  const [updateId, setUpdateId] = useState("");
+  const [updateStatus, setUpdateStatus] = useState("");
 
-  // 👨‍⚕️ GET DOCTORS
-  const getDoctors = async () => {
+  // ================= CREATE =================
+  const createAppointment = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/doctors/by-department-name/${spec}`);
-      setDoctors(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      setDoctors([]);
-    }
-  };
-
-  // 📅 CREATE APPOINTMENT
-  const book = async () => {
-    try {
-      if (!dateTime || !patient || !doctor) {
-        alert("Fill all fields");
-        return;
-      }
-
       const payload = {
-        patient_id: Number(patient.patient_id),
-        doctor_id: Number(doctor.doctor_id),
-        appointment_datetime: dateTime + ":00", // ✅ Applied your fix
-        status: "SCHEDULED" // ✅ Applied backend requirement
+        patient_id: Number(form.patient_id),
+        doctor_id: Number(form.doctor_id),
+        appointment_datetime: new Date(form.datetime).toISOString(),
+        status: form.status
       };
 
-      await axios.post("http://localhost:8000/appointments/", payload);
-      alert("✅ Appointment booked!");
-      setDoctor(null); // Reset after booking
+      const res = await axios.post(
+        "http://localhost:8000/appointments/",
+        payload
+      );
+
+      alert(`✅ Created! ID: ${res.data.appointment_id}`);
+
+      setForm({
+        patient_id: "",
+        doctor_id: "",
+        datetime: "",
+        status: "SCHEDULED"
+      });
+
     } catch (err) {
-      alert(err.response?.data?.detail || "❌ Booking failed");
+      console.error(err.response?.data);
+      alert(err.response?.data?.detail || "❌ Error");
     }
   };
 
-  // 🔍 LOOKUP APPOINTMENTS
-  const lookupAppointments = async () => {
+  // ================= LOOKUP BY PHONE =================
+  const getAppointments = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/appointments/by-patient/${lookupId}`);
+      const res = await axios.get(
+        `http://localhost:8000/appointments/by-patient/${phone}`
+      );
+
       setAppointments(res.data);
-    } catch {
-      alert("No appointments found");
+    } catch (err) {
+      alert("❌ No appointments found");
       setAppointments([]);
     }
   };
 
+  // ================= UPDATE STATUS =================
+  const updateAppointmentStatus = async () => {
+    try {
+      if (!updateId || !updateStatus) {
+        alert("⚠️ Fill all fields");
+        return;
+      }
+
+      await axios.patch(
+        `http://localhost:8000/appointments/${updateId}/status`,
+        { status: updateStatus }
+      );
+
+      alert("✅ Status updated");
+
+      setUpdateId("");
+      setUpdateStatus("");
+
+    } catch (err) {
+      console.error(err.response?.data);
+      alert(err.response?.data?.detail || "❌ Update failed");
+    }
+  };
+
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="header-top">
-          <button className="back-btn" onClick={() => go("dashboard")}>
-            <i className="fa-solid fa-arrow-left"></i> Back
-          </button>
-          <h1>Appointment Management</h1>
+    <div style={{ padding: "20px" }}>
+      <button onClick={() => (mode === "" ? go("dashboard") : setMode(""))}>
+        ⬅ Back
+      </button>
+
+      <h2>Appointment Management</h2>
+
+      {/* ================= MENU ================= */}
+      {mode === "" && (
+        <div>
+          <button onClick={() => setMode("create")}>Create</button>
+          <button onClick={() => setMode("lookup")}>Lookup</button>
+          <button onClick={() => setMode("update")}>Update Status</button>
         </div>
-      </header>
+      )}
 
-      <main className="management-grid">
-        {/* SECTION 1: CREATE APPOINTMENT */}
-        <section className="management-section">
-          <div className="card">
-            <h2><i className="fa-solid fa-calendar-plus"></i> Create Appointment</h2>
+      {/* ================= CREATE ================= */}
+      {mode === "create" && (
+        <div>
+          <h3>Create Appointment</h3>
 
-            <div className="search-box">
-              <input
-                placeholder="Enter patient phone"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <button className="card-button" onClick={searchPatient}>Search</button>
+          <input
+            placeholder="Patient ID"
+            value={form.patient_id}
+            onChange={(e) =>
+              setForm({ ...form, patient_id: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Doctor ID"
+            value={form.doctor_id}
+            onChange={(e) =>
+              setForm({ ...form, doctor_id: e.target.value })
+            }
+          />
+
+          <input
+            type="datetime-local"
+            value={form.datetime}
+            onChange={(e) =>
+              setForm({ ...form, datetime: e.target.value })
+            }
+          />
+
+          <select
+            value={form.status}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value })
+            }
+          >
+            <option value="SCHEDULED">SCHEDULED</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+            <option value="NO_SHOW">NO SHOW</option>
+          </select>
+
+          <button onClick={createAppointment}>
+            Create Appointment
+          </button>
+        </div>
+      )}
+
+      {/* ================= LOOKUP ================= */}
+      {mode === "lookup" && (
+        <div>
+          <h3>Lookup by Phone</h3>
+
+          <input
+            placeholder="Enter phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+
+          <button onClick={getAppointments}>Search</button>
+
+          {appointments.map((a) => (
+            <div key={a.appointment_id} style={{ border: "1px solid white", marginTop: "10px", padding: "10px" }}>
+              <p><b>ID:</b> {a.appointment_id}</p>
+              <p><b>Doctor ID:</b> {a.doctor_id}</p>
+              <p><b>Date:</b> {new Date(a.appointment_datetime).toLocaleString()}</p>
+              <p><b>Status:</b> {a.status}</p>
             </div>
+          ))}
+        </div>
+      )}
 
-            {patient && (
-              <div className="patient-info-mini">
-                <p><strong>Patient:</strong> {patient.name} (ID: {patient.patient_id})</p>
-                <div className="search-box">
-                  <label>Specialization</label>
-                  <select
-                    id="spec"
-                    required
-                    value={spec}
-                    onChange={(e) => setSpec(e.target.value)}
-                  >
-                    <option value="" disabled>Select Specialization</option>
-                    <option value="Cardiology">Cardiology</option>
-                    <option value="Neurology">Neurology</option>
-                  </select>
-                  <button className="card-button outline" onClick={getDoctors}>Find Doctors</button>
-                </div>
-              </div>
-            )}
+      {/* ================= UPDATE ================= */}
+      {mode === "update" && (
+        <div>
+          <h3>Update Appointment Status</h3>
 
-            <div className="doctor-grid">
-              {doctors.map((d) => (
-                <div key={d.doctor_id} className={`doc-mini-card ${doctor?.doctor_id === d.doctor_id ? 'selected' : ''}`}>
-                  <h4>{d.name}</h4>
-                  <p>{d.specialization}</p>
-                  <button className="select-btn" onClick={() => setDoctor(d)}>
-                    {doctor?.doctor_id === d.doctor_id ? "Selected" : "Select"}
-                  </button>
-                </div>
-              ))}
-            </div>
+          <input
+            placeholder="Appointment ID"
+            value={updateId}
+            onChange={(e) => setUpdateId(e.target.value)}
+          />
 
-            {doctor && (
-              <div className="booking-final">
-                <label>Select Date & Time</label>
-                <input type="datetime-local" onChange={(e) => setDateTime(e.target.value)} />
-                <button className="card-button" onClick={book}>Confirm Booking</button>
-              </div>
-            )}
-          </div>
-        </section>
+          <select
+            value={updateStatus}
+            onChange={(e) => setUpdateStatus(e.target.value)}
+          >
+            <option value="">Select Status</option>
+            <option value="SCHEDULED">SCHEDULED</option>
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="CANCELLED">CANCELLED</option>
+            <option value="NO_SHOW">NO SHOW</option>
+          </select>
 
-        {/* SECTION 2: APPOINTMENT LOOKUP */}
-        <section className="management-section">
-          <div className="card">
-            <h2><i className="fa-solid fa-calendar-check"></i> Appointment Lookup</h2>
-            <div className="search-box">
-              <input
-                placeholder="Enter Patient ID"
-                onChange={(e) => setLookupId(e.target.value)}
-              />
-              <button className="card-button" onClick={lookupAppointments}>Search</button>
-            </div>
-
-            <div className="appointment-list">
-              {appointments.map((a) => (
-                <div key={a.appointment_id} className="appt-item">
-                  <div className="appt-meta">
-                    <span className="appt-id">ID: #{a.appointment_id}</span>
-                    <span className={`status-badge ${a.status.toLowerCase()}`}>{a.status}</span>
-                  </div>
-                  <p><strong>Doctor ID:</strong> {a.doctor_id}</p>
-                  <p><strong>Date:</strong> {new Date(a.appointment_datetime).toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </main>
+          <button onClick={updateAppointmentStatus}>
+            Update Status
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-export default AppointmentPage;
+export default Appointment;

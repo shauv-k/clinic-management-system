@@ -18,8 +18,15 @@ class AppointmentCreate(BaseModel):
 # -------------------------------
 class AppointmentOut(BaseModel):
     appointment_id: int
+
     patient_id: int
+    patient_name: str
+
     doctor_id: int
+    doctor_name: str
+
+    department: str | None
+
     appointment_datetime: datetime
     status: str
 
